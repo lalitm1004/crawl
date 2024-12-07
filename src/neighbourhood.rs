@@ -56,14 +56,14 @@ impl Neighbourhood {
 
     fn direction_to_offset(direction: &Direction) -> (i8 , i8) {
         match direction {
-            Direction::Up => (0, 1),
-            Direction::Down => (0, -1),
+            Direction::Up => (0, -1),
+            Direction::Down => (0, 1),
             Direction::Right => (1, 0),
             Direction::Left => (-1, 0),
-            Direction::TopRight => (1, 1),
-            Direction::TopLeft => (-1, 1),
-            Direction::BottomRight => (1, -1),
-            Direction::BottomLeft => (-1, -1),
+            Direction::TopRight => (1, -1),
+            Direction::TopLeft => (-1, -1),
+            Direction::BottomRight => (1, 1),
+            Direction::BottomLeft => (-1, 1),
         }
     }
 }
@@ -76,8 +76,8 @@ mod tests {
     fn test_moore_neighbourhood() {
         let moore = Neighbourhood::moore();
         let expected = vec![
-            (0, 1), (1, 1), (1, 0), (1, -1),
-            (0, -1), (-1, -1), (-1, 0), (-1, 1),
+            (0, -1), (1, -1), (1, 0), (1, 1),
+            (0, 1), (-1, 1), (-1, 0), (-1, -1),
         ];
         assert_eq!(moore.get_neighbourhood(), expected, "Invalid Moore neighbourhood");
     }
@@ -86,8 +86,8 @@ mod tests {
     fn test_von_neumann_neighbourhood() {
         let von_neumann = Neighbourhood::von_neumann();
         let expected = vec![
-            (0, 1), (1, 0),
-            (0, -1), (-1, 0)
+            (0, -1), (1, 0),
+            (0, 1), (-1, 0)
         ];
         assert_eq!(von_neumann.get_neighbourhood(), expected, "Invalid VonNeumann neighbourhood");
     }
@@ -98,7 +98,7 @@ mod tests {
             Direction::Up,
             Direction::Down,
         ]);
-        let expected = vec![(0, 1), (0, -1)];
+        let expected = vec![(0, -1), (0, 1)];
         assert_eq!(custom.get_neighbourhood(), expected);
 
         // empty neighbourhood
