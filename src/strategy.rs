@@ -1,4 +1,3 @@
-#[allow(dead_code)]
 enum Strategy {
     CC(i32),
     CD(i32),
@@ -6,7 +5,6 @@ enum Strategy {
     DC(i32),
 }
 
-#[allow(dead_code)]
 impl Strategy {
     pub fn new(is_cooperator: bool) -> Self {
         match is_cooperator {
@@ -48,7 +46,7 @@ impl Strategy {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::Strategy;
 
     #[test]
