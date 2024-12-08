@@ -1,11 +1,11 @@
-enum Strategy {
+pub enum Cell {
     CC(i32),
     CD(i32),
     DD(i32),
     DC(i32),
 }
 
-impl Strategy {
+impl Cell {
     pub fn new(is_cooperator: bool) -> Self {
         match is_cooperator {
             true => Self::CC(0),
@@ -47,36 +47,36 @@ impl Strategy {
 
 #[cfg(test)]
 mod tests {
-    use super::Strategy;
+    use super::Cell;
 
     #[test]
     fn test_new() {
-        let cooperator = Strategy::new(true);
-        assert!(matches!(cooperator, Strategy::CC(0)), "New cooperator should be CC variant with fitness 0");
+        let cooperator = Cell::new(true);
+        assert!(matches!(cooperator, Cell::CC(0)), "New cooperator should be CC variant with fitness 0");
 
-        let defector = Strategy::new(false);
-        assert!(matches!(defector, Strategy::DD(0)), "New defector should be DD variant with fitness 0");
+        let defector = Cell::new(false);
+        assert!(matches!(defector, Cell::DD(0)), "New defector should be DD variant with fitness 0");
     }
 
     #[test]
     fn test_is_cooperator() {
-        assert!(Strategy::CC(0).is_cooperator(), "CC should be cooperator");
-        assert!(Strategy::DC(20).is_cooperator(), "DC should be cooperator");
-        assert!(!Strategy::CD(-10).is_cooperator(), "CD should be defector");
-        assert!(!Strategy::DD(-0).is_cooperator(), "DD should be defector");
+        assert!(Cell::CC(0).is_cooperator(), "CC should be cooperator");
+        assert!(Cell::DC(20).is_cooperator(), "DC should be cooperator");
+        assert!(!Cell::CD(-10).is_cooperator(), "CD should be defector");
+        assert!(!Cell::DD(-0).is_cooperator(), "DD should be defector");
     }
 
     #[test]
     fn test_get_fitness() {
-        assert_eq!(Strategy::CC(10).get_fitness(), 10, "Fitness of CC should be 10");
-        assert_eq!(Strategy::CD(20).get_fitness(), 20, "Fitness of CD should be 20");
-        assert_eq!(Strategy::DC(-10).get_fitness(), -10, "Fitness of DC should be -10");
-        assert_eq!(Strategy::DD(-20).get_fitness(), -20, "Fitness of DD should be -20");
+        assert_eq!(Cell::CC(10).get_fitness(), 10, "Fitness of CC should be 10");
+        assert_eq!(Cell::CD(20).get_fitness(), 20, "Fitness of CD should be 20");
+        assert_eq!(Cell::DC(-10).get_fitness(), -10, "Fitness of DC should be -10");
+        assert_eq!(Cell::DD(-20).get_fitness(), -20, "Fitness of DD should be -20");
     }
 
     #[test]
     fn test_set_fitness() {
-        let mut strategy = Strategy::CC(5);
+        let mut strategy = Cell::CC(5);
 
         strategy.set_fitness(20);
         assert_eq!(strategy.get_fitness(), 20, "Fitness should be 20");
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_increment_fitness() {
-        let mut strategy = Strategy::DC(5);
+        let mut strategy = Cell::DC(5);
 
         strategy.increment_fitness(20);
         assert_eq!(strategy.get_fitness(), 25, "Fitness should be 25");
