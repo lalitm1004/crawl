@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Direction {
     Up,
     Down,
@@ -9,6 +10,7 @@ pub enum Direction {
     BottomLeft,
 }
 
+#[derive(Debug, Clone)]
 pub struct Neighbourhood {
     neighbors: Vec<Direction>,
 }
@@ -20,7 +22,7 @@ impl Neighbourhood {
         }
     }
 
-    // Convention for listing neighbours is to start with Up and move clockwise
+    // convention for listing neighbours is to start with Up and move clockwise
     pub fn moore() -> Self {
         Neighbourhood {
             neighbors: vec![
