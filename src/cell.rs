@@ -44,6 +44,20 @@ impl Cell {
             Self::DC(fitness) => fitness,
         } += increment;
     }
+
+    pub fn update_strategy(&mut self, to_cooperator: bool) {
+        let fitness = self.get_fitness();
+        *self = match to_cooperator {
+            true => match self {
+                Self::DD(_) | Self::CD(_) => Self::DC(fitness),
+                _ => Self::CC(fitness)
+            },
+            false => match self {
+                Self::CC(_) | Self::DC(_) => Self::CD(fitness),
+                _ => Self::DD(fitness)
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -98,5 +112,22 @@ mod tests {
 
         strategy.increment_fitness(-25);
         assert_eq!(strategy.get_fitness(), -25, "Fitness should be -25");
+    }
+
+    #[test]
+    fn test_update_strategy() {
+        let mut cell = Cell::CC(100);
+
+        cell.update_strategy(false);
+        assert_eq!(cell, Cell::CD(100));
+
+        cell.update_strategy(false);
+        assert_eq!(cell, Cell::DD(100));
+
+        cell.update_strategy(true);
+        assert_eq!(cell, Cell::DC(100));
+
+        cell.update_strategy(true);
+        assert_eq!(cell, Cell::CC(100));
     }
 }
