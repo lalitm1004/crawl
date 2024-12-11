@@ -1,3 +1,4 @@
+#[derive(PartialEq, Debug)]
 pub enum Cell {
     CC(i32),
     CD(i32),
