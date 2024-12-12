@@ -51,15 +51,24 @@ impl Grid {
         }
     }
 
-    fn get_index(&self, row: usize, col: usize) -> Option<usize> {
-        if row >= self.num_rows || col >= self.num_cols {
-            None
+    fn get_index(&self, row: i32, col: i32) -> Option<usize> {
+        let num_rows= self.num_rows as i32;
+        let num_cols= self.num_cols as i32;
+        if self.wrapped {
+            let wrapped_row = ((row % num_rows) + num_rows) % num_rows;
+            let wrapped_col = ((col % num_cols) + num_cols) % num_cols;
+
+            Some((wrapped_row * num_cols + wrapped_col) as usize)
         } else {
-            Some(row * self.num_cols + col)
+            if row >= 0 && row < self.num_rows as i32 && col >= 0 && col < self.num_cols as i32 {
+                Some((row * self.num_cols as i32 + col) as usize)
+            } else {
+                None
+            }
         }
     }
 
-    pub fn get_cell(&self, row: usize, col: usize) -> Option<&Cell> {
+    pub fn get_cell(&self, row: i32, col: i32) -> Option<&Cell> {
         let index = Grid::get_index(&self, row, col);
         if let Some(index) = index {
             self.lattice.get(index)
@@ -68,7 +77,7 @@ impl Grid {
         }
     }
 
-    pub fn get_cell_mut(&mut self, row: usize, col: usize) -> Option<&mut Cell> {
+    pub fn get_cell_mut(&mut self, row: i32, col: i32) -> Option<&mut Cell> {
         let index = Grid::get_index(&self, row, col);
         if let Some(index) = index {
             self.lattice.get_mut(index)
@@ -127,26 +136,49 @@ mod tests {
     }
 
     #[test]
-    fn test_get_cell_valid_coords() {
-        let grid = create_test_grid();
-        let cell = grid.get_cell(2, 3);
-        assert!(cell.is_some(), "Cell at valid coordinates should exist");
+    fn test_get_index_non_wrapped() {
+        let grid = Grid::new(5, 5, false, None);
+
+        assert_eq!(grid.get_index(0, 0), Some(0), "Non-Wrapped index (0, 0) should return 0");
+        assert_eq!(grid.get_index(4, 4), Some(24), "Non-Wrapped index (4, 4) should return 24");
+        assert_eq!(grid.get_index(-1, -1), None, "Index out of bounds should return None");
+        assert_eq!(grid.get_index(10, 10), None, "Index out of bounds should return None");
     }
 
     #[test]
-    fn test_get_cell_invalid_coords() {
-        let grid = create_test_grid();
+    fn test_get_index_wrapped() {
+        let grid = Grid::new(5, 5, true, None);
 
-        // test coordinates beyond grid size
-        assert!(grid.get_cell(5, 0).is_none(), "Row beyond grid size should return None");
-        assert!(grid.get_cell(0, 5).is_none(), "Column beyond grid size should return None");
+        assert_eq!(grid.get_index(0, 0), Some(0), "Non-Wrapped index (0, 0) should return 0");
+        assert_eq!(grid.get_index(4, 4), Some(24), "Non-Wrapped index (0, 0) should return 0");
+        assert_eq!(grid.get_index(-1, -1), Some(24), "Index (-1, -1) should wrap and return 24");
+        assert_eq!(grid.get_index(10, 10), Some(0), "Index (10, 10) should wrap and return None");
     }
 
     #[test]
-    fn test_get_cell_mut_valid_coords() {
-        let mut grid = create_test_grid();
+    fn test_get_cell_non_wrapped() {
+        let grid = Grid::new(5, 5, false, None);
 
-        // test getting a mutable cell at valid coordinates
+        assert!(grid.get_cell(2, 3).is_some(), "Cell at valid coordinates (2, 3) should return Some");
+        assert!(grid.get_cell(5, 5).is_none(), "Cell at invalid coordinates (5, 5) should return None");
+        assert!(grid.get_cell(-2, -3).is_none(), "Cell at invalid coordinates (-2, -3) should return None");
+        assert!(grid.get_cell(-2, 3).is_none(), "Cell at invalid coordinates (-2, 3) should return None");
+    }
+
+    #[test]
+    fn test_get_cell_wrapped() {
+        let grid = Grid::new(5, 5, false, None);
+
+        assert!(grid.get_cell(2, 3).is_some(), "Cell at coordinates (2, 3) should return Some");
+        assert!(grid.get_cell(5, 5).is_none(), "Cell at coordinates (5, 5) should wrap and return Some");
+        assert!(grid.get_cell(-2, -3).is_none(), "Cell at coordinates (-2, -3) should wrap and return Some");
+        assert!(grid.get_cell(-2, 3).is_none(), "Cell at coordinates (-2, 3) should wrap and return Some");
+    }
+
+    #[test]
+    fn test_get_cell_mut() {
+        let mut grid = Grid::new(5, 5, true, None);
+
         let cell = grid.get_cell_mut(2, 3);
         assert!(cell.is_some(), "Mutable cell at valid coordinates should exist");
 
@@ -157,25 +189,5 @@ mod tests {
         // verify modification
         let cell = grid.get_cell(2, 3);
         assert_eq!(cell.unwrap().get_fitness(), 100, "Cell fitness should be modifiable");
-    }
-
-    #[test]
-    fn test_get_cell_mut_out_of_bounds() {
-        let mut grid = create_test_grid();
-
-        assert!(grid.get_cell_mut(5, 0).is_none(), "Row beyond grid size should return None");
-        assert!(grid.get_cell_mut(0, 5).is_none(), "Column beyond grid size should return None");
-    }
-
-    fn create_test_grid() -> Grid {
-        Grid::new(
-            5,
-            5,
-            false,
-            Some(RngSettings {
-                seed: 100,
-                initial_cooperators: 0.5,
-            })
-        )
     }
 }
