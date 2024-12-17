@@ -35,32 +35,74 @@ impl Trajectory {
     }
 
     fn update_fitness(&mut self) {
-        let num_rows = self.grid.num_rows;
-        let num_cols = self.grid.num_cols;
-        
-        let mut fitness = vec![vec![0; num_cols]; num_rows];
+        let mut fitness = vec![vec![0; self.grid.num_cols as usize]; self.grid.num_rows as usize];
 
-        for i in 0..num_rows {
-            for j in 0..num_cols {
+        for (row_idx, row) in fitness.iter_mut().enumerate() {
+            for (col_idx, fitness_val) in row.iter_mut().enumerate() {
+                let row = row_idx as i32;
+                let col = col_idx as i32;
+
+                let curr_cell = self.grid.get_cell(row, col).unwrap();
+
+                let total_payoff= self.neighbourhood.get_neighbourhood()
+                    .iter()
+                    .map(|&(di, dj)| {
+                        let neighbour_cell = self.grid.get_cell(row + di, col + dj).unwrap();
+                        self.payoff_matrix.get_payoff(&curr_cell, &neighbour_cell)
+                    })
+                    .sum();
+
+                *fitness_val = total_payoff;
+            }
+        }
+
+        for (row_idx, row) in fitness.iter().enumerate() {
+            for (col_idx, &fitness_val) in row.iter().enumerate() {
+                let curr_cell = self.grid.get_cell_mut(row_idx as i32, col_idx as i32).unwrap();
+                curr_cell.set_fitness(fitness_val);
+            }
+        }
+    }
+
+    fn update_strategy(&mut self) {
+        for i in 0..self.grid.num_rows {
+            for j in 0..self.grid.num_cols {
                 let row = i as i32;
                 let col = j as i32;
 
                 let curr_cell = self.grid.get_cell(row, col).unwrap();
-                let mut total_payoff = 0;
 
-                for (di, dj) in self.neighbourhood.get_neighbourhood() {
-                    let neighbour_cell = self.grid.get_cell(row + di, col + dj).unwrap();
-                    total_payoff += self.payoff_matrix.get_payoff(&curr_cell, &neighbour_cell);
-                }
+                let strategy_fitness_map: Vec<(bool, i32)> = self.neighbourhood.get_neighbourhood()
+                    .iter()
+                    .chain(std::iter::once(&(0, 0))) // include current cell
+                    .map(|&(di, dj)| {
+                        let cell = self.grid.get_cell(row + di, col + dj).unwrap();
+                        (cell.is_cooperator(), cell.get_fitness())
+                    })
+                    .collect();
 
-                fitness[i][j] = total_payoff;
-            }
-        }
+                let max_fitness = strategy_fitness_map
+                    .iter()
+                    .map(|&(_, fitness)| fitness)
+                    .max()
+                    .unwrap_or(0);
 
-        for i in 0..num_rows {
-            for j in 0..num_cols {
-                let curr_cell = self.grid.get_cell_mut(i as i32, j as i32).unwrap();
-                curr_cell.set_fitness(fitness[i][j]);
+                let maintain_strategy = strategy_fitness_map
+                    .iter()
+                    .filter(|&&(_, fitness)| fitness == max_fitness)
+                    .any(|&(is_neighbour_cooperator, _)| {
+                        curr_cell.is_cooperator() == is_neighbour_cooperator
+                    });
+
+                let to_cooperator = if maintain_strategy {
+                    curr_cell.is_cooperator()
+                } else {
+                    !curr_cell.is_cooperator()
+                };
+
+                self.grid.get_cell_mut(row, col)
+                    .unwrap()
+                    .update_strategy(to_cooperator);
             }
         }
     }
@@ -96,7 +138,7 @@ mod tests {
     #[test]
     fn test_update_fitness() {
         let mut trajectory = Trajectory::new(
-            String::from("Test"),
+            get_name(),
             100,
             get_grid(),
             get_neighbourhood(),
@@ -107,6 +149,23 @@ mod tests {
         assert_eq!(trajectory.grid.get_cell(2, 2).unwrap().get_fitness(), 400);
         assert_eq!(trajectory.grid.get_cell(2, 1).unwrap().get_fitness(), 100);
         assert_eq!(trajectory.grid.get_cell(2, 0).unwrap().get_fitness(), 200);
+    }
+
+    #[test]
+    fn test_update_strategy() {
+        let mut trajectory = Trajectory::new(
+            get_name(),
+            100,
+            get_grid(),
+            get_neighbourhood(),
+            get_payoff_matrix(),
+        );
+
+        trajectory.update_fitness();
+        trajectory.update_strategy();
+        assert_eq!(trajectory.grid.get_cell(2, 2).unwrap().is_cooperator(), false);
+        assert_eq!(trajectory.grid.get_cell(2, 1).unwrap().is_cooperator(), false);
+        assert_eq!(trajectory.grid.get_cell(2, 0).unwrap().is_cooperator(), true);
     }
 
     fn get_name() -> String {
