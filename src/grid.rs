@@ -3,11 +3,13 @@ use rand::rngs::StdRng;
 
 use crate::cell::Cell;
 
+#[derive(Debug, PartialEq)]
 pub struct RngSettings {
     pub seed: u64,
     pub initial_cooperators: f64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct Grid {
     pub num_rows: usize,
     pub num_cols: usize,
@@ -85,8 +87,6 @@ impl Grid {
             None
         }
     }
-
-
 }
 
 #[cfg(test)]

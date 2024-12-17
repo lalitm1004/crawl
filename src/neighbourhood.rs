@@ -10,7 +10,7 @@ pub enum Direction {
     BottomLeft,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Neighbourhood {
     neighbors: Vec<Direction>,
 }
@@ -49,14 +49,14 @@ impl Neighbourhood {
         }
     }
 
-    pub fn get_neighbourhood(&self) -> Vec<(i8, i8)> {
+    pub fn get_neighbourhood(&self) -> Vec<(i32, i32)> {
         self.neighbors
             .iter()
             .map(Self::direction_to_offset)
             .collect()
     }
 
-    fn direction_to_offset(direction: &Direction) -> (i8 , i8) {
+    fn direction_to_offset(direction: &Direction) -> (i32 , i32) {
         match direction {
             Direction::Up => (0, -1),
             Direction::Down => (0, 1),
@@ -105,7 +105,7 @@ mod tests {
 
         // empty neighbourhood
         let custom = Neighbourhood::custom(vec![]);
-        let expected: Vec<(i8, i8)> = vec![];
+        let expected: Vec<(i32, i32)> = vec![];
         assert_eq!(custom.get_neighbourhood(), expected);
     }
 }
