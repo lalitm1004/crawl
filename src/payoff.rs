@@ -1,5 +1,6 @@
 use crate::cell::Cell;
 
+#[derive(Debug, PartialEq)]
 pub struct PayoffMatrix {
     c_c: i32,
     c_d: i32,
@@ -12,15 +13,15 @@ impl PayoffMatrix {
         Self { c_c, c_d, d_c, d_d }
     }
 
-    pub fn get_payoff(&self, cell1: &Cell, cell2: &Cell) -> (i32, i32) {
+    pub fn get_payoff(&self, cell1: &Cell, cell2: &Cell) -> i32 {
         match cell1.is_cooperator() {
             true => match cell2.is_cooperator() {
-                true => (self.c_c, self.c_c),
-                false => (self.c_d, self.d_c),
+                true => self.c_c,
+                false => self.c_d,
             }
             false => match cell2.is_cooperator() {
-                true => (self.d_c, self.c_d),
-                false => (self.d_d, self.d_d),
+                true => self.d_c,
+                false => self.d_d,
             }
         }
     }
@@ -37,9 +38,9 @@ mod tests {
         let defector = Cell::new(false);
 
         let payoff_mat = PayoffMatrix::new(50, -50, 100, 0);
-        assert_eq!(payoff_mat.get_payoff(&cooperator, &cooperator), (50, 50), "Invalid payoff");
-        assert_eq!(payoff_mat.get_payoff(&cooperator, &defector), (-50, 100), "Invalid payoff");
-        assert_eq!(payoff_mat.get_payoff(&defector, &cooperator), (100, -50), "Invalid payoff");
-        assert_eq!(payoff_mat.get_payoff(&defector, &defector), (0, 0), "Invalid payoff");
+        assert_eq!(payoff_mat.get_payoff(&cooperator, &cooperator), 50, "Invalid payoff");
+        assert_eq!(payoff_mat.get_payoff(&cooperator, &defector), -50, "Invalid payoff");
+        assert_eq!(payoff_mat.get_payoff(&defector, &cooperator), 100, "Invalid payoff");
+        assert_eq!(payoff_mat.get_payoff(&defector, &defector), 0, "Invalid payoff");
     }
 }
