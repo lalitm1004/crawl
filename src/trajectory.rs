@@ -33,6 +33,37 @@ impl Trajectory {
             payoff_matrix,
         }
     }
+
+    fn update_fitness(&mut self) {
+        let num_rows = self.grid.num_rows;
+        let num_cols = self.grid.num_cols;
+        
+        let mut fitness = vec![vec![0; num_cols]; num_rows];
+
+        for i in 0..num_rows {
+            for j in 0..num_cols {
+                let row = i as i32;
+                let col = j as i32;
+
+                let curr_cell = self.grid.get_cell(row, col).unwrap();
+                let mut total_payoff = 0;
+
+                for (di, dj) in self.neighbourhood.get_neighbourhood() {
+                    let neighbour_cell = self.grid.get_cell(row + di, col + dj).unwrap();
+                    total_payoff += self.payoff_matrix.get_payoff(&curr_cell, &neighbour_cell);
+                }
+
+                fitness[i][j] = total_payoff;
+            }
+        }
+
+        for i in 0..num_rows {
+            for j in 0..num_cols {
+                let curr_cell = self.grid.get_cell_mut(i as i32, j as i32).unwrap();
+                curr_cell.set_fitness(fitness[i][j]);
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -60,6 +91,22 @@ mod tests {
         assert_eq!(trajectory.grid, get_grid());
         assert_eq!(trajectory.neighbourhood, get_neighbourhood());
         assert_eq!(trajectory.payoff_matrix, get_payoff_matrix());
+    }
+
+    #[test]
+    fn test_update_fitness() {
+        let mut trajectory = Trajectory::new(
+            String::from("Test"),
+            100,
+            get_grid(),
+            get_neighbourhood(),
+            get_payoff_matrix(),
+        );
+
+        trajectory.update_fitness();
+        assert_eq!(trajectory.grid.get_cell(2, 2).unwrap().get_fitness(), 400);
+        assert_eq!(trajectory.grid.get_cell(2, 1).unwrap().get_fitness(), 100);
+        assert_eq!(trajectory.grid.get_cell(2, 0).unwrap().get_fitness(), 200);
     }
 
     fn get_name() -> String {
