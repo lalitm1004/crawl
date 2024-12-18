@@ -40,7 +40,7 @@ impl Trajectory {
     }
 
     pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
-        let base_path = Path::new(&self.name).join(&self.id);
+        let base_path = Path::new("trajectories").join(&self.name).join(&self.id);
         fs::create_dir_all(base_path.clone())?;
 
         let metadata_json = self.get_metadata()?;
@@ -270,12 +270,11 @@ mod tests {
             get_payoff_matrix(),
         );
 
-        println!("{:?}", trajectory.grid.rng_settings);
 
         let run_result = trajectory.run();
         assert!(run_result.is_ok(), "Trajectory run should succeed");
 
-        let base_path = Path::new(&trajectory.name).join(&trajectory.id);
+        let base_path = Path::new("trajectories").join(&trajectory.name).join(&trajectory.id);
         assert!(base_path.exists(), "Base directory should be created");
 
         let metadata_path = base_path.join("metadata.json");
