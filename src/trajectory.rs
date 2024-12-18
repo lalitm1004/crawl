@@ -1,8 +1,9 @@
 use std::time::{SystemTime, UNIX_EPOCH};
+use serde::Serialize;
 
-use crate::grid::Grid;
+use crate::grid::{Grid, RngSettings};
 use crate::payoff::PayoffMatrix;
-use crate::neighbourhood::Neighbourhood;
+use crate::neighbourhood::{Direction, Neighbourhood};
 
 #[derive(Debug)]
 pub struct Trajectory {
@@ -106,6 +107,42 @@ impl Trajectory {
             }
         }
     }
+
+    fn get_metadata(&self) -> Result<String, serde_json::Error> {
+        #[derive(Serialize)]
+        struct TrajectoryMetadata<'a> {
+            name: &'a str,
+            id: &'a str,
+            max_iterations: i32,
+            neighbourhood: Vec<Direction>,
+            payoff_matrix: PayoffMatrix,
+            grid: GridMetadata
+        }
+
+        #[derive(Serialize)]
+        struct GridMetadata {
+            num_rows: usize,
+            num_cols: usize,
+            wrapped: bool,
+            rng_settings: Option<RngSettings>,
+        }
+
+        let metadata = TrajectoryMetadata {
+            name: &self.name,
+            id: &self.id,
+            max_iterations: self.max_iterations,
+            neighbourhood: self.neighbourhood.get_directions(),
+            payoff_matrix: self.payoff_matrix,
+            grid: GridMetadata {
+                num_rows: self.grid.num_rows,
+                num_cols: self.grid.num_cols,
+                wrapped: self.grid.wrapped,
+                rng_settings: self.grid.rng_settings
+            }
+        };
+
+        serde_json::to_string_pretty(&metadata)
+    }
 }
 
 #[cfg(test)]
@@ -166,6 +203,41 @@ mod tests {
         assert_eq!(trajectory.grid.get_cell(2, 2).unwrap().is_cooperator(), false);
         assert_eq!(trajectory.grid.get_cell(2, 1).unwrap().is_cooperator(), false);
         assert_eq!(trajectory.grid.get_cell(2, 0).unwrap().is_cooperator(), true);
+    }
+
+    #[test]
+    fn test_get_metadata() {
+        let trajectory = Trajectory::new(
+            get_name(),
+            100,
+            get_grid(),
+            get_neighbourhood(),
+            get_payoff_matrix(),
+        );
+
+        let metadata_result = trajectory.get_metadata();
+        assert!(metadata_result.is_ok(), "Metadata generation should succeed");
+
+        let metadata_json = metadata_result.unwrap();
+
+        let metadata: serde_json::Value = serde_json::from_str(&metadata_json)
+            .expect("Should be able to parse metadata JSON");
+
+
+        assert_eq!(metadata["name"], "test");
+        assert_eq!(metadata["max_iterations"], 100);
+
+        assert!(metadata["neighbourhood"].is_array());
+
+        assert_eq!(metadata["grid"]["num_rows"], 5);
+        assert_eq!(metadata["grid"]["num_cols"], 5);
+        assert_eq!(metadata["grid"]["wrapped"], true);
+
+        let payoff_matrix = &metadata["payoff_matrix"];
+        assert_eq!(payoff_matrix["c_c"], 50);
+        assert_eq!(payoff_matrix["c_d"], -50);
+        assert_eq!(payoff_matrix["d_c"], 100);
+        assert_eq!(payoff_matrix["d_d"], 0);
     }
 
     fn get_name() -> String {

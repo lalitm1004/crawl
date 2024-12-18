@@ -1,9 +1,10 @@
 use rand::{Rng, SeedableRng};
 use rand::rngs::StdRng;
+use serde::{Deserialize, Serialize};
 
 use crate::cell::Cell;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct RngSettings {
     pub seed: u64,
     pub initial_cooperators: f64,

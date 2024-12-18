@@ -1,4 +1,6 @@
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Direction {
     Up,
     Down,
@@ -47,6 +49,10 @@ impl Neighbourhood {
                 Direction::Left,
             ],
         }
+    }
+
+    pub fn get_directions(&self) -> Vec<Direction> {
+        self.neighbors.clone()
     }
 
     pub fn get_neighbourhood(&self) -> Vec<(i32, i32)> {

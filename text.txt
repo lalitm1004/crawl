@@ -1,0 +1,38 @@
+
+running 21 tests
+test cell::tests::test_is_cooperator ... okNo rng settings detected, defaulting to lone defector
+
+No rng settings detected, defaulting to lone defector
+No rng settings detected, defaulting to lone defector
+No rng settings detected, defaulting to lone defector
+No rng settings detected, defaulting to lone defector
+No rng settings detected, defaulting to lone defector
+No rng settings detected, defaulting to lone defector
+Ok("{\n  \"name\": \"test\",\n  \"id\": \"1734520325\",\n  \"max_iterations\": 100,\n  \"neighbourhood\": [\n    \"Up\",\n    \"Right\",\n    \"Down\",\n    \"Left\"\n  ],\n  \"payoff_matrix\": {\n    \"c_c\": 50,\n    \"c_d\": -50,\n    \"d_c\": 100,\n    \"d_d\": 0\n  },\n  \"grid\": {\n    \"num_rows\": 5,\n    \"num_cols\": 5,\n    \"wrapped\": true,\n    \"rng_settings\": null\n  }\n}")
+No rng settings detected, defaulting to lone defector
+No rng settings detected, defaulting to lone defector
+No rng settings detected, defaulting to lone defector
+No rng settings detected, defaulting to lone defector
+test cell::tests::test_set_fitness ... ok
+test cell::tests::test_update_strategy ... ok
+test grid::tests::test_get_cell_mut ... ok
+test grid::tests::test_get_cell_non_wrapped ... ok
+test grid::tests::test_get_index_non_wrapped ... ok
+test cell::tests::test_get_fitness ... ok
+test grid::tests::test_preset_grid ... ok
+test grid::tests::test_random_grid ... ok
+test neighbourhood::tests::test_custom_neighbourhood ... ok
+test neighbourhood::tests::test_moore_neighbourhood ... ok
+test neighbourhood::tests::test_von_neumann_neighbourhood ... ok
+test payoff::tests::test_get_payoff ... ok
+test trajectory::tests::test_new ... ok
+test trajectory::tests::test_get_metadata ... ok
+test cell::tests::test_new ... ok
+test trajectory::tests::test_update_fitness ... ok
+test grid::tests::test_get_cell_wrapped ... ok
+test trajectory::tests::test_update_strategy ... ok
+test cell::tests::test_increment_fitness ... ok
+test grid::tests::test_get_index_wrapped ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
