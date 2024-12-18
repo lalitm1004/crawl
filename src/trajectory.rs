@@ -1,3 +1,7 @@
+use std::error::Error;
+use std::fs::{self, File};
+use std::io::Write;
+use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 use serde::Serialize;
 
@@ -33,6 +37,19 @@ impl Trajectory {
             neighbourhood,
             payoff_matrix,
         }
+    }
+
+    pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
+        let base_path = Path::new(&self.name).join(&self.id);
+        fs::create_dir_all(base_path.clone())?;
+
+        let metadata_json = self.get_metadata()?;
+        
+        let metadata_path = base_path.join("metadata.json");
+        let mut metadata_file = File::create(metadata_path)?;
+        metadata_file.write_all(metadata_json.as_bytes())?;
+
+        Ok(())
     }
 
     fn update_fitness(&mut self) {
@@ -115,16 +132,16 @@ impl Trajectory {
             id: &'a str,
             max_iterations: i32,
             neighbourhood: Vec<Direction>,
-            payoff_matrix: PayoffMatrix,
-            grid: GridMetadata
+            payoff_matrix: &'a PayoffMatrix,
+            grid: GridMetadata<'a>
         }
 
         #[derive(Serialize)]
-        struct GridMetadata {
+        struct GridMetadata<'a> {
             num_rows: usize,
             num_cols: usize,
             wrapped: bool,
-            rng_settings: Option<RngSettings>,
+            rng_settings: &'a Option<RngSettings>,
         }
 
         let metadata = TrajectoryMetadata {
@@ -132,12 +149,12 @@ impl Trajectory {
             id: &self.id,
             max_iterations: self.max_iterations,
             neighbourhood: self.neighbourhood.get_directions(),
-            payoff_matrix: self.payoff_matrix,
+            payoff_matrix: &self.payoff_matrix,
             grid: GridMetadata {
                 num_rows: self.grid.num_rows,
                 num_cols: self.grid.num_cols,
                 wrapped: self.grid.wrapped,
-                rng_settings: self.grid.rng_settings
+                rng_settings: &self.grid.rng_settings
             }
         };
 
@@ -147,8 +164,10 @@ impl Trajectory {
 
 #[cfg(test)]
 mod tests {
+    use std::path::Path;
+
     use crate::{
-        grid::Grid,
+        grid::{Grid, RngSettings},
         neighbourhood::Neighbourhood,
         payoff::PayoffMatrix
     };
@@ -210,7 +229,7 @@ mod tests {
         let trajectory = Trajectory::new(
             get_name(),
             100,
-            get_grid(),
+            get_grid_rng(),
             get_neighbourhood(),
             get_payoff_matrix(),
         );
@@ -240,12 +259,53 @@ mod tests {
         assert_eq!(payoff_matrix["d_d"], 0);
     }
 
+    #[test]
+    fn test_run() {
+        // Create a trajectory
+        let mut trajectory = Trajectory::new(
+            get_name(),
+            100,
+            get_grid_rng(),
+            get_neighbourhood(),
+            get_payoff_matrix(),
+        );
+
+        println!("{:?}", trajectory.grid.rng_settings);
+
+        let run_result = trajectory.run();
+        assert!(run_result.is_ok(), "Trajectory run should succeed");
+
+        let base_path = Path::new(&trajectory.name).join(&trajectory.id);
+        assert!(base_path.exists(), "Base directory should be created");
+
+        let metadata_path = base_path.join("metadata.json");
+        assert!(metadata_path.exists(), "Metadata file should be created");
+
+        let metadata_content = std::fs::read_to_string(&metadata_path)
+            .expect("Should be able to read metadata file");
+        
+        let metadata: serde_json::Value = serde_json::from_str(&metadata_content)
+            .expect("Metadata should be valid JSON");
+
+        assert_eq!(metadata["name"], "test", "Name should match");
+        assert_eq!(metadata["max_iterations"], 100, "Max iterations should match");
+        assert_eq!(metadata["grid"]["num_rows"], 5, "Grid rows should match");
+        assert_eq!(metadata["grid"]["num_cols"], 5, "Grid columns should match");
+
+        // std::fs::remove_dir_all(base_path)
+        //     .expect("Should be able to remove test directory");
+    }
+
     fn get_name() -> String {
         String::from("test")
     }
 
     fn get_grid() -> Grid {
         Grid::new(5, 5, true, None)
+    }
+
+    fn get_grid_rng() -> Grid {
+        Grid::new(5, 5, true, Some(RngSettings{ seed: 239203, initial_cooperators: 0.5 }))
     }
 
     fn get_neighbourhood() -> Neighbourhood {
