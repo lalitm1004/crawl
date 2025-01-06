@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq)]
 pub enum Cell {
     CC(i32),
     CD(i32),
