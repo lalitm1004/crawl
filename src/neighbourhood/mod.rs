@@ -1,6 +1,8 @@
 pub mod direction;
 use direction::Direction;
+use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize)]
 pub struct Neighbourhood {
     neighbours: Vec<Direction>
 }
@@ -40,8 +42,8 @@ impl Neighbourhood {
     }
 
     #[inline]
-    pub fn get_directions(&self) -> &Vec<Direction> {
-        &self.neighbours
+    pub fn get_directions(&self) -> Vec<Direction> {
+        self.neighbours.to_vec()
     }
 
     #[inline]

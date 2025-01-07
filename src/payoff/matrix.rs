@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use crate::cell::Cell;
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
 pub struct PayoffMatrix {
     c_c: i32,
     c_d: i32,
