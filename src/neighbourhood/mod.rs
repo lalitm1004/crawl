@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Direction {
     Up,
     TopRight,
@@ -14,9 +14,9 @@ const OFFSETS: &[(i32, i32)] = &[
     (0, -1),
     (1, -1),
     (1, 0),
-    (1, -1),
-    (0, -1),
-    (-1, -1),
+    (1, 1),
+    (0, 1),
+    (-1, 1),
     (-1, 0),
     (-1, -1),
 ];
@@ -27,17 +27,9 @@ pub struct Neighbourhood {
 }
 
 impl Direction {
-    pub const fn to_offset(&self) -> &(i32, i32) {
-        match self {
-            Direction::Up => &OFFSETS[0],
-            Direction::TopRight => &OFFSETS[1],
-            Direction::Right => &OFFSETS[2],
-            Direction::BottomRight => &OFFSETS[3],
-            Direction::Down => &OFFSETS[4],
-            Direction::BottomLeft => &OFFSETS[5],
-            Direction::Left => &OFFSETS[6],
-            Direction::TopLeft => &OFFSETS[7],
-        }
+    #[inline]
+    pub const fn to_offset(&self) -> &'static (i32, i32) {
+        &OFFSETS[*self as usize]
     }
 }
 
@@ -72,10 +64,12 @@ impl Neighbourhood {
         }
     }
 
-    pub fn get_directions(&self) -> &Vec<Direction> {
+    #[inline]
+    pub fn get_directions(&self) -> &[Direction] {
         &self.neighbours
     }
 
+    #[inline]
     pub fn offsets_iter(&self) -> impl Iterator<Item = &(i32, i32)> {
         self.neighbours.iter().map(|d| d.to_offset())
     }

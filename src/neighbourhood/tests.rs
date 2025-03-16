@@ -5,9 +5,9 @@ fn test_direction_to_offset() {
     assert_eq!(*Direction::Up.to_offset(), (0, -1));
     assert_eq!(*Direction::TopRight.to_offset(), (1, -1));
     assert_eq!(*Direction::Right.to_offset(), (1, 0));
-    assert_eq!(*Direction::BottomRight.to_offset(), (1, -1));
-    assert_eq!(*Direction::Down.to_offset(), (0, -1));
-    assert_eq!(*Direction::BottomLeft.to_offset(), (-1, -1));
+    assert_eq!(*Direction::BottomRight.to_offset(), (1, 1));
+    assert_eq!(*Direction::Down.to_offset(), (0, 1));
+    assert_eq!(*Direction::BottomLeft.to_offset(), (-1, 1));
     assert_eq!(*Direction::Left.to_offset(), (-1, 0));
     assert_eq!(*Direction::TopLeft.to_offset(), (-1, -1));
 }
