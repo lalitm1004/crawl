@@ -102,3 +102,11 @@ fn test_cell_multiple_transitions() {
     cell.update_strategy(true);
     assert_eq!(cell, Cell::CC(10.0));
 }
+
+#[test]
+fn test_cell_id() {
+    assert_eq!(Cell::CC(0.0).id(), 1);
+    assert_eq!(Cell::CD(0.0).id(), 2);
+    assert_eq!(Cell::DD(0.0).id(), 3);
+    assert_eq!(Cell::DC(0.0).id(), 4);
+}

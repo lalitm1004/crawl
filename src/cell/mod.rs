@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Cell {
     CC(f32),
     CD(f32),
@@ -11,6 +11,15 @@ impl Cell {
         match is_cooperator {
             true => Cell::CC(0.0),
             false => Cell::DD(0.0),
+        }
+    }
+
+    pub fn id(&self) -> u8 {
+        match self {
+            Cell::CC(_) => 1,
+            Cell::CD(_) => 2,
+            Cell::DD(_) => 3,
+            Cell::DC(_) => 4,
         }
     }
 
@@ -34,10 +43,10 @@ impl Cell {
         } = new_fitness;
     }
 
-    pub fn update_strategy(&mut self, to_cooperator: bool) -> Self {
+    pub fn update_strategy(&mut self, to_cooperator: bool) {
         let fitness = self.get_fitness();
 
-        match (self.is_cooperator(), to_cooperator) {
+        *self = match (self.is_cooperator(), to_cooperator) {
             (true, true) => Cell::CC(fitness),
             (true, false) => Cell::CD(fitness),
             (false, false) => Cell::DD(fitness),
