@@ -14,15 +14,6 @@ impl Cell {
         }
     }
 
-    pub fn id(&self) -> u8 {
-        match self {
-            Cell::CC(_) => 1,
-            Cell::CD(_) => 2,
-            Cell::DD(_) => 3,
-            Cell::DC(_) => 4,
-        }
-    }
-
     pub fn is_cooperator(&self) -> bool {
         matches!(self, Cell::CC(_) | Cell::DC(_))
     }

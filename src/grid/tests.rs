@@ -1,4 +1,4 @@
-use super::Grid;
+use super::{Grid, rng::RngSettings};
 
 #[test]
 fn test_get_index_non_wrapped() {
@@ -117,4 +117,30 @@ fn test_get_cell_mut() {
         100.0,
         "Cell fitness should be modifiable"
     );
+}
+
+#[test]
+fn test_hash_consistency() -> Result<(), String> {
+    let grid = Grid::new((100, 100), true, Some(RngSettings::new(None, 0.5)?));
+
+    let hash_1 = grid.get_lattice_hash();
+    let hash_2 = grid.get_lattice_hash();
+
+    assert_eq!(hash_1, hash_2);
+    Ok(())
+}
+
+#[test]
+fn test_hash_on_change() -> Result<(), String> {
+    let mut grid = Grid::new((100, 100), true, Some(RngSettings::new(None, 0.5)?));
+
+    let hash_1 = grid.get_lattice_hash();
+
+    let cell = grid.get_cell_mut(0, 0).unwrap();
+    cell.update_strategy(!cell.is_cooperator());
+
+    let hash_2 = grid.get_lattice_hash();
+
+    assert_ne!(hash_1, hash_2);
+    Ok(())
 }

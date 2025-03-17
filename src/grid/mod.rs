@@ -4,6 +4,9 @@ use crate::cell::Cell;
 use rand::SeedableRng;
 use rng::RngSettings;
 
+use ahash::AHasher;
+use std::hash::{BuildHasherDefault, Hasher};
+
 #[derive(Debug)]
 pub struct Grid {
     pub dimensions: (i32, i32),
@@ -69,6 +72,22 @@ impl Grid {
     pub fn get_cell_mut(&mut self, row: i32, col: i32) -> Option<&mut Cell> {
         self.get_index(row, col)
             .and_then(|index| self.lattice.get_mut(index))
+    }
+
+    pub fn get_lattice_hash(&self) -> u64 {
+        let mut hasher = AHasher::default();
+
+        for cell in &self.lattice {
+            let value = match cell {
+                Cell::CC(_) => 0b00,
+                Cell::CD(_) => 0b01,
+                Cell::DD(_) => 0b10,
+                Cell::DC(_) => 0b11,
+            };
+            hasher.write_u8(value);
+        }
+
+        hasher.finish()
     }
 }
 
