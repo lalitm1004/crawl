@@ -75,5 +75,15 @@ impl Neighbourhood {
     }
 }
 
+impl<'a> IntoIterator for &'a Neighbourhood {
+    type Item = &'static (i32, i32);
+    type IntoIter =
+        std::iter::Map<std::slice::Iter<'a, Direction>, fn(&Direction) -> &'static (i32, i32)>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.neighbours.iter().map(Direction::to_offset)
+    }
+}
+
 #[cfg(test)]
 mod tests;

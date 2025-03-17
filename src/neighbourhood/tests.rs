@@ -72,3 +72,32 @@ fn test_offsets_iter_repeated_calls() {
     let offsets_second: Vec<(i32, i32)> = neighbourhood.offsets_iter().cloned().collect();
     assert_eq!(offsets_first, offsets_second,);
 }
+
+#[test]
+fn test_moore_neighbourhood_iterator() {
+    let neighbourhood = Neighbourhood::moore();
+    let expected_offsets = vec![
+        (0, -1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
+        (0, 1),
+        (-1, 1),
+        (-1, 0),
+        (-1, -1),
+    ];
+
+    let collected_offsets: Vec<&(i32, i32)> = neighbourhood.into_iter().collect();
+    assert_eq!(
+        collected_offsets,
+        expected_offsets.iter().collect::<Vec<_>>()
+    )
+}
+
+#[test]
+fn test_repeated_iterators() {
+    let neighbourhood = Neighbourhood::moore();
+    let offsets_first: Vec<&(i32, i32)> = neighbourhood.into_iter().collect();
+    let offsets_second: Vec<&(i32, i32)> = neighbourhood.into_iter().collect();
+    assert_eq!(offsets_first, offsets_second);
+}
