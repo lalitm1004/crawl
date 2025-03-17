@@ -1,5 +1,6 @@
-mod matrix;
+use crate::cell::Cell;
 
+mod matrix;
 use matrix::PayoffMatrix;
 
 pub struct Payoff {
@@ -10,6 +11,19 @@ pub struct Payoff {
 impl Payoff {
     pub fn new(matrix: PayoffMatrix) -> Self {
         Self { matrix }
+    }
+
+    pub fn get_payoff(
+        &self,
+        cell_1: &Cell,
+        cell_2: &Cell,
+        _coordinates: Option<(i32, i32)>,
+    ) -> f32 {
+        let matrix_payoff = self.matrix.get_payoff(cell_1, cell_2);
+
+        // add spatial payoff
+
+        matrix_payoff
     }
 }
 
