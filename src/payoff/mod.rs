@@ -3,6 +3,7 @@ use crate::cell::Cell;
 mod matrix;
 use matrix::PayoffMatrix;
 
+#[derive(Debug)]
 pub struct Payoff {
     pub matrix: PayoffMatrix,
     // add spatial payoff
