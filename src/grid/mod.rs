@@ -5,19 +5,19 @@ use rand::SeedableRng;
 use rng::RngSettings;
 
 use ahash::AHasher;
-use std::hash::{BuildHasherDefault, Hasher};
+use std::hash::Hasher;
 
 #[derive(Debug)]
 pub struct Grid {
-    pub dimensions: (i32, i32),
+    pub dimension: (i32, i32),
     pub wrapped: bool,
     pub rng_settings: Option<RngSettings>,
     pub lattice: Vec<Cell>,
 }
 
 impl Grid {
-    pub fn new(dimensions: (i32, i32), wrapped: bool, rng_settings: Option<RngSettings>) -> Self {
-        let total_cells = dimensions.0 * dimensions.1;
+    pub fn new(dimension: (i32, i32), wrapped: bool, rng_settings: Option<RngSettings>) -> Self {
+        let total_cells = dimension.0 * dimension.1;
         let lattice: Vec<Cell> = match &rng_settings {
             Some(rng_settings) => {
                 let rng = rand::rngs::StdRng::seed_from_u64(rng_settings.seed);
@@ -39,7 +39,7 @@ impl Grid {
         };
 
         Grid {
-            dimensions,
+            dimension,
             wrapped,
             rng_settings,
             lattice,
@@ -47,8 +47,8 @@ impl Grid {
     }
 
     fn get_index(&self, row: i32, col: i32) -> Option<usize> {
-        let num_rows = self.dimensions.0;
-        let num_cols = self.dimensions.1;
+        let num_rows = self.dimension.0;
+        let num_cols = self.dimension.1;
 
         if self.wrapped {
             let wrapped_row = ((row % num_rows) + num_rows) % num_rows;
