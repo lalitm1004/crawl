@@ -2,8 +2,9 @@ use crate::cell::Cell;
 
 mod matrix;
 use matrix::PayoffMatrix;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Payoff {
     pub matrix: PayoffMatrix,
     // add spatial payoff

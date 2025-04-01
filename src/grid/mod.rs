@@ -2,7 +2,7 @@ mod rng;
 
 use crate::cell::Cell;
 use rand::SeedableRng;
-use rng::RngSettings;
+pub use rng::RngSettings;
 
 use ahash::AHasher;
 use std::hash::Hasher;

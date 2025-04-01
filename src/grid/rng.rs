@@ -1,6 +1,7 @@
 use rand::{Rng, rngs::ThreadRng};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RngSettings {
     pub seed: u64,
     pub cooperator_frequency: f64,
